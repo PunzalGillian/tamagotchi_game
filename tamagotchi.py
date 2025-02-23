@@ -2,7 +2,7 @@ import pygame
 import sys
 from PyQt5.QtWidgets import QWidget, QApplication, QPushButton, QVBoxLayout
 from PyQt5.QtGui import QPainter, QColor, QPixmap, QPainterPath, QPen
-from PyQt5.QtCore import QRectF, Qt
+from PyQt5.QtCore import QRectF, Qt, QTimer
 
 # load sfx
 pygame.mixer.init()
@@ -12,7 +12,7 @@ game_start = pygame.mixer.Sound("sfx/game-start.wav")
 death_sound = pygame.mixer.Sound("sfx/death.wav")
 
 EGGS = {
-    "Bulbasar": "img/bulbasaur-egg.png",
+    "Bulbasaur": "img/bulbasaur-egg.png",
     "Jigglypuff": "img/jigglypuff-egg.png",
     "Charizard": "img/charizard-egg.png",
     "Squirtle": "img/squirtle-egg.png",
@@ -30,10 +30,10 @@ TAMAGOTCHIS = {
 }
 
 MENU_ITEMS = [
-    {"name": "Status", "image": "img/heart.png"},
-    {"name": "Medicine", "image": "img/medicine.png"},
-    {"name": "Feed", "image": "img/feed.png"},
-    {"name": "Play", "image": "img/play.png"}
+    {"name": "Status", "image": "img/heart.png", "width": 78.5, "height": 64},
+    {"name": "Medicine", "image": "img/medicine.png", "width": 78, "height": 75},
+    {"name": "Feed", "image": "img/feed.png", "width": 79.5, "height": 73.5},
+    {"name": "Play", "image": "img/play.png", "width": 73.5, "height": 73.5}
 ]
 
 ## TAMAGOTCHI STATS
@@ -121,8 +121,12 @@ class Tamagotchi(QWidget):
             tamagotchi_y_position = (self.height() - 85) // 2 - 15
             painter.drawPixmap(tamagotchi_x_position, tamagotchi_y_position, scaled_tamagotchi)
 
+        if self.current_egg_image is not None:
+            if not self.is_hatched:
+                scaled_egg = self.current_egg_image.scaled(65,76, Qt.KeepAspectRatio)
+
         if self.menu_active:
-            self.draw_menu(painter, center_x, center_y)
+            self.menu_layout(painter, center_x, center_y)
 
     def create_buttons(self):
                 #A
@@ -146,12 +150,11 @@ class Tamagotchi(QWidget):
         self.buttonC.clicked.connect(self.move_egg_right)
 
 
-    
     def move_egg_left(self):
         if not self.is_hatched:
             if self.current_egg_index > 0:
                 self.current_egg_index -= 1
-                self.current_egg_image = self.egg_images[list(EGGS.keys)[self.current_egg_index]]
+                self.current_egg_image = self.egg_images[list(EGGS.keys())[self.current_egg_index]]
                 self.update()
         elif self.menu_active:
             self.current_menu_index = (self.current_menu_index - 1) % 4
@@ -160,13 +163,11 @@ class Tamagotchi(QWidget):
         if not self.is_hatched:
             if self.current_egg_index < len(EGGS) - 1:
                 self.current_egg_index += 1
-                self.current_egg_image = self.egg_images[list(EGGS.keys)[self.current_egg_index]]
+                self.current_egg_image = self.egg_images[list(EGGS.keys())[self.current_egg_index]]
                 self.update()
         elif self.menu_active:
             self.current_menu_index = (self.current_menu_index - 1) % 4
             self.update()
-
-
     def hatch_egg(self):
         if not self.is_hatched:
             selected_egg = list(EGGS.keys())[self.current_egg_index]
@@ -179,32 +180,68 @@ class Tamagotchi(QWidget):
 
             self.is_hatched = True
 
-            self.activate_menu
+            QTimer.singleShot(500, self.activate_menu)
 
     def activate_menu(self):
         self.menu_active = True
         self.buttonA.setDisabled(False)
-        self.buttonB.setDisabled(False)
+        self.buttonC.setDisabled(False)
         self.update()
+
+
+    def menu_layout(self, painter, center_x, center_y):
+        item_w = 30
+        item_h = 30
+        start_x = center_x + 12
+        start_y = center_y + 110
+
+        for i, item_name in enumerate(self.menu_items):
+            item_x = start_x + i * (item_w + 5)
+            scaled_menu_item = self.menu_items[item_name].scaled(item_w, item_h)
+            painter.drawPixmap(item_x, start_y, scaled_menu_item)
+
+            if i == self.current_menu_index: 
+                pen = QPen(QColor(63,99,171), 4)
+                painter.setPen(pen)
+                painter.drawRect(QRectF(item_x, start_y, item_w, item_h))
 
     def menu_options(self):
         if self.is_hatched and self.menu_active:
             selected_menu = list(MENU_ACTIONS.keys())[self.current_menu_index]
             action = MENU_ACTIONS.get(selected_menu)
 
-            self.clear_screen()
+            self.clear_screen(keep_image=True)
 
-            if action:
-                action()
-  
-    def clear_screen(self):
-        self.current_egg_image = None
+            if selected_menu == "Status":
+                self.status()
+            elif selected_menu == "Medicine":
+                self.medicine()
+            elif selected_menu == "Feed":
+                self.Feed()
+            elif selected_menu == "Play":
+                self.Play()
+            else:
+                print("Invalid")
+
+    def clear_screen(self, keep_image=False):
+        if not keep_image:
+            self.current_egg_image = None
         self.menu_active = False
         self.update()
 
+    def select(self, event):
+        if event.key() == Qt.Key_B and self.is_status_screen:
+            self.is_status_screen = False
+            self.menu_active
+            self.update()
     def status(self):
         self.clear_screen()
-        
+        self.menu_active = False
+
+        self.status = f"Weight: {weight}\nHappiness: {happiness}/10\nHealth: {health}/10\nSleep: {sleep}/10"
+        self.is_status_screen = True
+        self.update()
+
     def medicine(self):
         self.clear_screen()
 
