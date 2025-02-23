@@ -1,8 +1,8 @@
 import pygame
 import sys
-from PyQt5.QtWidgets import QWidget, QApplication
+from PyQt5.QtWidgets import QWidget, QApplication, QPushButton, QVBoxLayout
 from PyQt5.QtGui import QPainter, QColor, QPixmap, QPainterPath, QPen
-from PyQt5.QtCore import QRectF
+from PyQt5.QtCore import QRectF, Qt
 
 # load sfx
 pygame.mixer.init()
@@ -20,7 +20,7 @@ EGGS = {
     "Oddish": "img/oddish-egg.png"
 }
 
-TAMAGOCHIS = {
+TAMAGOTCHIS = {
     "Bulbasaur": "img/bulbasaur.png",
     "Jigglypuff": "img/jigglypuff.png",
     "Charizard": "img/charizard.png",
@@ -45,11 +45,44 @@ sleep = 10
 class Tamagotchi(QWidget):
     def __init__(self):
         super().__init__()
+        global MENU_ACTIONS
+        MENU_ACTIONS = {
+        "Status": self.status,
+        "Medicine": self.medicine,
+        "Feed": self.feed,
+        "Play": self.play
+        }
+
         self.setFixedSize(281, 318) ## WINDOW SIZE
 
+        #INITIALIZATION
+        self.egg_x_position = (self.width() - 65) // 2
+        self.egg_y_position = (self.height()-75) // 2
+        self.current_egg_index = 0
+        self.is_hatched = False
+        self.current_menu_index = 0
+        self.menu_active = False
+        
+
+        #LOAD HERE
         self.bg_image = QPixmap("img/bg.png")
         if self.bg_image.isNull():
             print("Errorr")
+
+                #EGGS
+        self.egg_images = {name: QPixmap(path) for name, path in EGGS.items()}
+        for egg_name, pixmap in self.egg_images.items():
+            if pixmap.isNull():
+                print("error: no egg image")
+        self.current_egg_image = self.egg_images[list(EGGS.keys())[self.current_egg_index]]
+                #menu
+        self.menu_items = {item["name"]: QPixmap(item["image"]) for item in MENU_ITEMS}
+        for item_name, pixmap in self.menu_items.items():    
+            if pixmap.isNull():
+                print("error: no menu image")
+
+        game_start.play()
+        self.create_buttons()
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -57,13 +90,13 @@ class Tamagotchi(QWidget):
 
         ellipse_path = QPainterPath()
         ellipse_path.addEllipse(QRectF(0,0,281,318))
-        
+
         ## mask clipping for shell wallpaper
         if not self.bg_image.isNull():
-            painter.setClipPath(QPainterPath())
+            painter.setClipPath(ellipse_path)
             bg_image = self.bg_image.scaled(281,318)
             painter.drawPixmap(0,0, bg_image)
-        
+    
         pen = QPen(QColor(63,99,171))
         pen.setWidth(8)
         painter.setPen(pen)
@@ -78,6 +111,108 @@ class Tamagotchi(QWidget):
         painter.setBrush(QColor(200,200,200))
         painter.drawRect(screen)
 
+            # EGGS -------------------------------------------------
+        if not self.is_hatched:
+            scaled_egg = self.current_egg_image.scaled(65,76, Qt.KeepAspectRatio)
+            painter.drawPixmap(self.egg_x_position, self.egg_y_position, scaled_egg)
+        else:
+            scaled_tamagotchi = self.current_egg_image.scaled(85,85, Qt.KeepAspectRatio)
+            tamagotchi_x_position = (self.width() - 85) // 2
+            tamagotchi_y_position = (self.height() - 85) // 2 - 15
+            painter.drawPixmap(tamagotchi_x_position, tamagotchi_y_position, scaled_tamagotchi)
+
+        if self.menu_active:
+            self.draw_menu(painter, center_x, center_y)
+
+    def create_buttons(self):
+                #A
+        self.buttonA = QPushButton("A", self)
+        self.buttonA.setFixedSize(30,30)
+        self.buttonA.setStyleSheet("border-radius: 15px; background-color: lightgray; border: 3px solid rgb(63,99,171);")
+        self.buttonA.move(83,260)
+        self.buttonA.clicked.connect(self.move_egg_left)
+                #B
+        self.buttonB = QPushButton("B", self)
+        self.buttonB.setFixedSize(30,30)
+        self.buttonB.setStyleSheet("border-radius: 15px; background-color: lightgray; border: 3px solid rgb(63,99,171);")
+        self.buttonB.move(130,260)
+        self.buttonB.clicked.connect(self.hatch_egg)
+        self.buttonB.clicked.connect(self.menu_options)
+                #C
+        self.buttonC = QPushButton("C", self)
+        self.buttonC.setFixedSize(30,30)
+        self.buttonC.setStyleSheet("border-radius: 15px; background-color: lightgray; border: 3px solid rgb(63,99,171);")
+        self.buttonC.move(178,260)
+        self.buttonC.clicked.connect(self.move_egg_right)
+
+
+    
+    def move_egg_left(self):
+        if not self.is_hatched:
+            if self.current_egg_index > 0:
+                self.current_egg_index -= 1
+                self.current_egg_image = self.egg_images[list(EGGS.keys)[self.current_egg_index]]
+                self.update()
+        elif self.menu_active:
+            self.current_menu_index = (self.current_menu_index - 1) % 4
+            self.update()
+    def move_egg_right(self):
+        if not self.is_hatched:
+            if self.current_egg_index < len(EGGS) - 1:
+                self.current_egg_index += 1
+                self.current_egg_image = self.egg_images[list(EGGS.keys)[self.current_egg_index]]
+                self.update()
+        elif self.menu_active:
+            self.current_menu_index = (self.current_menu_index - 1) % 4
+            self.update()
+
+
+    def hatch_egg(self):
+        if not self.is_hatched:
+            selected_egg = list(EGGS.keys())[self.current_egg_index]
+            self.current_egg_image = QPixmap(TAMAGOTCHIS[selected_egg])
+            hatch_sound.play()
+            self.update()
+
+            self.buttonA.setDisabled(True)
+            self.buttonC.setDisabled(True)
+
+            self.is_hatched = True
+
+            self.activate_menu
+
+    def activate_menu(self):
+        self.menu_active = True
+        self.buttonA.setDisabled(False)
+        self.buttonB.setDisabled(False)
+        self.update()
+
+    def menu_options(self):
+        if self.is_hatched and self.menu_active:
+            selected_menu = list(MENU_ACTIONS.keys())[self.current_menu_index]
+            action = MENU_ACTIONS.get(selected_menu)
+
+            self.clear_screen()
+
+            if action:
+                action()
+  
+    def clear_screen(self):
+        self.current_egg_image = None
+        self.menu_active = False
+        self.update()
+
+    def status(self):
+        self.clear_screen()
+        
+    def medicine(self):
+        self.clear_screen()
+
+    def feed(self):
+        self.clear_screen()
+
+    def play(self):
+        self.clear_screen()
 
 #run
 app = QApplication(sys.argv)
