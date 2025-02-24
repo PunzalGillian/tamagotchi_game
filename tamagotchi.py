@@ -24,7 +24,7 @@ TAMAGOTCHIS = {
     "Bulbasaur": "img/bulbasaur.png",
     "Jigglypuff": "img/jigglypuff.png",
     "Charizard": "img/charizard.png",
-    "Squirtle": "img/squirtle-egg.png",
+    "Squirtle": "img/squirtleegg.png",
     "Ghastly": "img/ghastly.png",
     "Oddish": "img/oddish.png"
 }
