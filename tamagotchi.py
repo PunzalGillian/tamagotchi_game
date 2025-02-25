@@ -43,8 +43,10 @@ health = 2
 hunger = 3
 
 class Tamagotchi(QWidget):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super(Tamagotchi, self).__init__(parent)
+
+        self.oldPosition = QPoint(0,0)
         global MENU_ACTIONS
         MENU_ACTIONS = {
         "Status": self.status,
@@ -129,6 +131,11 @@ class Tamagotchi(QWidget):
             painter.setFont(QFont("PixelOperator.ttf", 8))
             painter.drawText(screen, Qt.AlignLeft | Qt.AlignTop, self.status_text)
             return
+        if self.is_play_screen:
+            painter.setPen(QPen(QColor(0,0,0)))
+            painter.setFont(QFont("PixelOperator.ttf", 8))
+            painter.drawText(screen, Qt.AlignLeft | Qt.AlignTop, self.play_text)
+            return
         
         if self.is_medicine_screen:
             painter.setPen(QPen(QColor(0,0,0)))
@@ -139,7 +146,7 @@ class Tamagotchi(QWidget):
         if self.is_feed_screen:
             painter.setPen(QPen(QColor(0,0,0)))
             painter.setFont(QFont("PixelOperator.ttf", 8))
-            painter.drawText(screen, Qt.AlignLeft | Qt.AlignTop, self.status_text)
+            painter.drawText(screen, Qt.AlignLeft | Qt.AlignTop, self._text)
             return
 
 
@@ -184,18 +191,9 @@ class Tamagotchi(QWidget):
             painter.setFont("PixelOperator.ttf",8)
             painter.drawText(screen, Qt.AlignLeft | Qt.AlignTop, self.feed_text)
             #----------------FOOD CHOICE------------------------
-            if self.feed_index == 0:
-                painter.setPen(QPen(QColor(63,99,171),2))
-                painter.drawText(50, 220, "> Cake")
-                painter.setPen(QPen(QColor(0,0,0),1))
-                painter.drawText(50,240, " Snacks")
-            else:
-                painter.setPen(QPen(QColor(0,0,0),1))
-                painter.drawText(50, 220, "  Yes")
-                painter.setPen(QPen(QColor(63,99,71),2))
-                painter.drawText(50,240, "> No")
-        
             return
+        
+
         
 
 
@@ -243,9 +241,11 @@ class Tamagotchi(QWidget):
             self.back_to_menu()
         elif self.is_feed_screen:
             self.back_to_menu()
+        elif self.is_play_screen():
+            self.back_to_menu()
         else:
             self.back_to_menu()
-            
+
         if self.is_medicine_screen:
             if self.medicine_index == 0:
                 if health == 10:
@@ -292,10 +292,10 @@ class Tamagotchi(QWidget):
             self.update()
         elif self.is_medicine_screen:
             self.medicine_index = (self.medicine_index - 1) % 2
-            self.update
+            self.update()
         elif self.is_feed_screen:
             self.feed_index = (self.feed_index - 1) % 2
-            self.update
+            self.update()
 
     def move_egg_right(self):
         if not self.is_hatched:
@@ -308,7 +308,7 @@ class Tamagotchi(QWidget):
             self.update()
         elif self.is_medicine_screen:
             self.medicine_index = (self.medicine_index + 1) % 2
-            self.update
+            self.update()
         elif self.is_feed_screen:
             self.feed_index = (self.feed_index + 1) % 2
             self.update()
@@ -385,7 +385,10 @@ class Tamagotchi(QWidget):
             self.is_feed_screen = False
             self.menu_active = True
             self.update()
-
+        if self.is_play_screen:
+            self.is_status_screen = False
+            self.menu_active = True
+            self.update()
 
     def clear_screen(self, keep_image=False):
         if not keep_image:
@@ -403,16 +406,22 @@ class Tamagotchi(QWidget):
                 self.menu_active = True
                 self.activate_menu()
                 self.update()
-        if self.is_medicine_screen:
+        elif self.is_medicine_screen:
                 self.is_medicine_screen = False
                 self.menu_active = True
                 self.activate_menu()
                 self.update()
-        if self.is_feed_screen:
+        elif self.is_feed_screen:
             self.is_feed_screen = False
             self.menu_active = True
             self.activate_menu()
             self.update()
+        elif self.is_status_screen:
+                self.is_status_screen = False
+                self.menu_active = True
+                self.activate_menu()
+                self.update()
+
 
     def status(self):
         self.clear_screen(keep_image=False)
@@ -437,7 +446,11 @@ class Tamagotchi(QWidget):
         self.update()
 
     def play(self):
-        self.clear_screen()
+        self.clear_screen(keep_image=False)
+
+        self.play_screen = True
+        self.play_text = f"\n   Yayyyy. Happiness\n increased to {happiness}/10"
+        self.update()
 
 #run
 app = QApplication(sys.argv)
