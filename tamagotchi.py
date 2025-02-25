@@ -1,7 +1,7 @@
 import pygame
 import sys
 from PyQt5.QtWidgets import QWidget, QApplication, QPushButton
-from PyQt5.QtGui import QPainter, QColor, QPixmap, QPainterPath, QPen
+from PyQt5.QtGui import QPainter, QColor, QPixmap, QPainterPath, QPen, QFont
 from PyQt5.QtCore import *
 
 # load sfx
@@ -64,7 +64,7 @@ class Tamagotchi(QWidget):
         self.is_hatched = False
         self.current_menu_index = 0
         self.menu_active = False
-        
+        self.is_status_screen = False        
 
         #LOAD HERE
         self.bg_image = QPixmap("img/bg.png")
@@ -117,6 +117,11 @@ class Tamagotchi(QWidget):
         painter.setPen(pen)
         painter.drawRect(screen)
 
+        if self.is_status_screen:
+            painter.setPen(QPen(QColor(0,0,0)))
+            painter.setFont(QFont("PixelOperator.ttf", 10))
+            painter.drawText(screen, Qt.AlignLeft | Qt.AlignTop, self.status_text)
+            return
             # EGGS -------------------------------------------------
         if not self.is_hatched:
             scaled_egg = self.current_egg_image.scaled(65,76, Qt.KeepAspectRatio)
@@ -233,12 +238,12 @@ class Tamagotchi(QWidget):
             elif selected_menu == "Medicine":
                 self.medicine()
             elif selected_menu == "Feed":
-                self.Feed()
+                self.feed()
             elif selected_menu == "Play":
-                self.Play()
+                self.play()
             else:
-                print("Invalid")
-
+                self.clear_screen(keep_image=True)
+                action()
     def clear_screen(self, keep_image=False):
         if not keep_image:
             self.current_egg_image = None
@@ -248,13 +253,12 @@ class Tamagotchi(QWidget):
     def select(self, event):
         if event.key() == Qt.Key_B and self.is_status_screen:
             self.is_status_screen = False
-            self.menu_active
+            self.menu_active = True
             self.update()
-    def status(self):
-        self.clear_screen()
-        self.menu_active = False
 
-        self.status = f"Weight: {weight}\nHappiness: {happiness}/10\nHealth: {health}/10\nSleep: {sleep}/10"
+    def status(self):
+        self.clear_screen(keep_image=False)
+        self.status_text = f"Weight: {weight}\nHappiness: {happiness}/10\nHealth: {health}/10\nSleep: {sleep}/10"
         self.is_status_screen = True
         self.update()
 
