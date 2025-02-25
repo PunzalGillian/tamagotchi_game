@@ -53,9 +53,10 @@ class Tamagotchi(QWidget):
         "Play": self.play
         }
 
-        self.setFixedSize(281, 318) ## WINDOW SIZE
-
+        self.setFixedSize(270, 318) ## WINDOW SIZE
         self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+
         #INITIALIZATION
         self.egg_x_position = (self.width() - 65) // 2
         self.egg_y_position = (self.height()-75) // 2
@@ -90,7 +91,7 @@ class Tamagotchi(QWidget):
         painter.setRenderHint(QPainter.Antialiasing)
 
         ellipse_path = QPainterPath()
-        ellipse_path.addEllipse(QRectF(0,0,281,318))
+        ellipse_path.addEllipse(QRectF(0,0,270,318))
 
         ## mask clipping for shell wallpaper
         if not self.bg_image.isNull():
@@ -99,10 +100,13 @@ class Tamagotchi(QWidget):
             painter.drawPixmap(0,0, bg_image)
     
         pen = QPen(QColor(63,99,171))
-        pen.setWidth(8)
+        ellipse_outline_width = 10
+        pen.setWidth(ellipse_outline_width)
         painter.setPen(pen)
         painter.setClipping(False)
-        painter.drawEllipse(QRectF(0,0,281,318))
+        painter.drawEllipse(ellipse_outline_width // 2, ellipse_outline_width // 2,
+            self.width() - ellipse_outline_width, self.height() - ellipse_outline_width)
+
 
         screen_w = 162
         screen_h = 151
@@ -110,6 +114,7 @@ class Tamagotchi(QWidget):
         center_y = (self.height() - screen_h)//2
         screen = QRectF(center_x, center_y, screen_w, screen_h)
         painter.setBrush(QColor(200,200,200))
+        painter.setPen(pen)
         painter.drawRect(screen)
 
             # EGGS -------------------------------------------------
@@ -134,20 +139,20 @@ class Tamagotchi(QWidget):
         self.buttonA = QPushButton("A", self)
         self.buttonA.setFixedSize(30,30)
         self.buttonA.setStyleSheet("border-radius: 15px; background-color: lightgray; border: 3px solid rgb(63,99,171);")
-        self.buttonA.move(83,260)
+        self.buttonA.move(73,260)
         self.buttonA.clicked.connect(self.move_egg_left)
                 #B
         self.buttonB = QPushButton("B", self)
         self.buttonB.setFixedSize(30,30)
         self.buttonB.setStyleSheet("border-radius: 15px; background-color: lightgray; border: 3px solid rgb(63,99,171);")
-        self.buttonB.move(130,260)
+        self.buttonB.move(120,260)
         self.buttonB.clicked.connect(self.hatch_egg)
         self.buttonB.clicked.connect(self.menu_options)
                 #C
         self.buttonC = QPushButton("C", self)
         self.buttonC.setFixedSize(30,30)
         self.buttonC.setStyleSheet("border-radius: 15px; background-color: lightgray; border: 3px solid rgb(63,99,171);")
-        self.buttonC.move(178,260)
+        self.buttonC.move(168,260)
         self.buttonC.clicked.connect(self.move_egg_right)
 
 
