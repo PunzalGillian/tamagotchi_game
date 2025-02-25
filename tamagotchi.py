@@ -139,7 +139,7 @@ class Tamagotchi(QWidget):
         if self.is_feed_screen:
             painter.setPen(QPen(QColor(0,0,0)))
             painter.setFont(QFont("PixelOperator.ttf", 8))
-            painter.drawText(screen, Qt.AlignLeft | Qt.AlignTop, self.feed_text)
+            painter.drawText(screen, Qt.AlignLeft | Qt.AlignTop, self.status_text)
             return
 
 
@@ -186,14 +186,14 @@ class Tamagotchi(QWidget):
             #----------------FOOD CHOICE------------------------
             if self.feed_index == 0:
                 painter.setPen(QPen(QColor(63,99,171),2))
-                painter.drawText(50, 220, "> Milk")
+                painter.drawText(50, 220, "> Cake")
                 painter.setPen(QPen(QColor(0,0,0),1))
                 painter.drawText(50,240, " Snacks")
             else:
                 painter.setPen(QPen(QColor(0,0,0),1))
-                painter.drawText(50, 220, "  Milk")
+                painter.drawText(50, 220, "  Yes")
                 painter.setPen(QPen(QColor(63,99,71),2))
-                painter.drawText(50,240, "> Cake")
+                painter.drawText(50,240, "> No")
         
             return
         
@@ -259,23 +259,28 @@ class Tamagotchi(QWidget):
                         self.status_text = f"\n\n    Health restored \n    to {health}/10"
 
         if self.is_feed_screen:
-            if self.feed_index == 0: #milk
+            if self.feed_index == 0:
                 if hunger == 10:
                     self.status_text = "\n\n   You're not hungry. come back later."
                 else:
-                        hunger = min(hunger + 5, 10) #cap
-                        happiness = min(happiness + 5,10)
-                        self.status_text = "\n\n    Yum. Hunger restored to {hunger}/10\n and happiness restored to {happines}/10"                    
-            else: #snacks
-                if hunger == 10:
-                    self.status_text = "\n\n   You're not hungry. come back later."             
-                else:       
-                    hunger = min(hunger + 3, 10) #cap
-                    happiness = min(happiness + 3,10)
-                    self.status_text = "\n\n    Yum. Hunger restored to {hunger}/10\n and happiness restored to {happines}/10"                 
-
+                    if hunger + 5 > 10:
+                        hunger = 10 #cap
+                        if happiness + 5 > 10: 
+                            happiness = 10
+                        else:
+                            happiness += 5 
+                            self.status_text = "\n\n    Yum. Hunger level\n and happiness increased"
+                    else:
+                        hunger += 5
+                        if happiness + 5 > 10:
+                            happiness = 10
+                        else:
+                            happiness += 5
+                            self.status_text = "\n\nYum. Hunger level\n and happiness increased"
+                        
+            self.back_to_menu()
             self.update()
-        self.back_to_menu()
+
     def move_egg_left(self):
         if not self.is_hatched:
             if self.current_egg_index > 0:
