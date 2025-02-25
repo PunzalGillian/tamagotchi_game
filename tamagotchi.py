@@ -1,8 +1,8 @@
 import pygame
 import sys
-from PyQt5.QtWidgets import QWidget, QApplication, QPushButton, QVBoxLayout
+from PyQt5.QtWidgets import QWidget, QApplication, QPushButton
 from PyQt5.QtGui import QPainter, QColor, QPixmap, QPainterPath, QPen
-from PyQt5.QtCore import QRectF, Qt, QTimer
+from PyQt5.QtCore import *
 
 # load sfx
 pygame.mixer.init()
@@ -55,6 +55,7 @@ class Tamagotchi(QWidget):
 
         self.setFixedSize(281, 318) ## WINDOW SIZE
 
+        self.setWindowFlags(Qt.FramelessWindowHint)
         #INITIALIZATION
         self.egg_x_position = (self.width() - 65) // 2
         self.egg_y_position = (self.height()-75) // 2
@@ -166,7 +167,7 @@ class Tamagotchi(QWidget):
                 self.current_egg_image = self.egg_images[list(EGGS.keys())[self.current_egg_index]]
                 self.update()
         elif self.menu_active:
-            self.current_menu_index = (self.current_menu_index - 1) % 4
+            self.current_menu_index = (self.current_menu_index + 1) % 4
             self.update()
     def hatch_egg(self):
         if not self.is_hatched:
