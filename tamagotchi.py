@@ -119,7 +119,7 @@ class Tamagotchi(QWidget):
 
         if self.is_status_screen:
             painter.setPen(QPen(QColor(0,0,0)))
-            painter.setFont(QFont("PixelOperator.ttf", 10))
+            painter.setFont(QFont("PixelOperator.ttf", 8))
             painter.drawText(screen, Qt.AlignLeft | Qt.AlignTop, self.status_text)
             return
             # EGGS -------------------------------------------------
@@ -258,9 +258,10 @@ class Tamagotchi(QWidget):
 
     def status(self):
         self.clear_screen(keep_image=False)
-        self.status_text = f"Weight: {weight}\nHappiness: {happiness}/10\nHealth: {health}/10\nSleep: {sleep}/10"
+        self.status_text = f"\n  Weight: {weight}kg\n  Happiness: {happiness}/10\n  Health: {health}/10\n  Sleep: {sleep}/10"
         self.is_status_screen = True
         self.update()
+
 
     def medicine(self):
         self.clear_screen()
