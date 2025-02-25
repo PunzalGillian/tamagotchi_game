@@ -39,8 +39,8 @@ MENU_ITEMS = [
 ## TAMAGOTCHI STATS
 weight = 1
 happiness = 4
-health = 2
-hunger = 3
+health = 6
+hunger = 6
 
 class Tamagotchi(QWidget):
     def __init__(self, parent=None):
@@ -67,8 +67,6 @@ class Tamagotchi(QWidget):
         self.current_menu_index = 0
         self.menu_active = False
 
-        self.medicine_index = 0
-        self.feed_index = 0
 
         self.is_status_screen = False        
         self.is_medicine_screen = False    
@@ -131,6 +129,7 @@ class Tamagotchi(QWidget):
             painter.setFont(QFont("PixelOperator.ttf", 8))
             painter.drawText(screen, Qt.AlignLeft | Qt.AlignTop, self.status_text)
             return
+        
         if self.is_play_screen:
             painter.setPen(QPen(QColor(0,0,0)))
             painter.setFont(QFont("PixelOperator.ttf", 8))
@@ -140,13 +139,13 @@ class Tamagotchi(QWidget):
         if self.is_medicine_screen:
             painter.setPen(QPen(QColor(0,0,0)))
             painter.setFont(QFont("PixelOperator.ttf", 8))
-            painter.drawText(screen, Qt.AlignLeft | Qt.AlignTop, self.status_text)
+            painter.drawText(screen, Qt.AlignLeft | Qt.AlignTop, self.medicine_text)
             return
         
         if self.is_feed_screen:
             painter.setPen(QPen(QColor(0,0,0)))
             painter.setFont(QFont("PixelOperator.ttf", 8))
-            painter.drawText(screen, Qt.AlignLeft | Qt.AlignTop, self._text)
+            painter.drawText(screen, Qt.AlignLeft | Qt.AlignTop, self.feed_text)
             return
 
 
@@ -168,34 +167,6 @@ class Tamagotchi(QWidget):
             self.menu_layout(painter, center_x, center_y)
 
         ## ----------------------------MEDICINE----------------------------------------------------------------------
-
-        if self.is_medicine_screen:
-            painter.setPen(QPen(QColor(0,0,0)))
-            painter.setFont("PixelOperator.ttf",8)
-            painter.drawText(screen, Qt.AlignLeft | Qt.AlignTop, self.medicine_text)
-            #----------------MEDICINE CHOICE------------------------
-            if self.medicine_index == 0:
-                painter.setPen(QPen(QColor(63,99,171),2))
-                painter.drawText(50, 220, "> Yes")
-                painter.setPen(QPen(QColor(0,0,0),1))
-                painter.drawText(50,240, " No")
-            else:
-                painter.setPen(QPen(QColor(0,0,0),1))
-                painter.drawText(50, 220, "  Yes")
-                painter.setPen(QPen(QColor(63,99,71),2))
-                painter.drawText(50,240, "> No")
-
-        #--------------------FEED----------------------------------------------
-        if self.is_feed_screen:
-            painter.setPen(QPen(QColor(0,0,0)))
-            painter.setFont("PixelOperator.ttf",8)
-            painter.drawText(screen, Qt.AlignLeft | Qt.AlignTop, self.feed_text)
-            #----------------FOOD CHOICE------------------------
-            return
-        
-
-        
-
 
     # action 1
     def mousePressEvent(self, event):
@@ -241,43 +212,11 @@ class Tamagotchi(QWidget):
             self.back_to_menu()
         elif self.is_feed_screen:
             self.back_to_menu()
-        elif self.is_play_screen():
+        elif self.is_play_screen:
             self.back_to_menu()
         else:
             self.back_to_menu()
 
-        if self.is_medicine_screen:
-            if self.medicine_index == 0:
-                if health == 10:
-                    self.status_text = "\n\n   Your health is full."
-                else:
-                    if health + 5 > 10:
-                        health = 10 #cap
-                        self.status_text = f"\n\n    Health restored \n    to {health}/10"
-                    else:
-                        health += 5
-                        self.status_text = f"\n\n    Health restored \n    to {health}/10"
-
-        if self.is_feed_screen:
-            if self.feed_index == 0:
-                if hunger == 10:
-                    self.status_text = "\n\n   You're not hungry. come back later."
-                else:
-                    if hunger + 5 > 10:
-                        hunger = 10 #cap
-                        if happiness + 5 > 10: 
-                            happiness = 10
-                        else:
-                            happiness += 5 
-                            self.status_text = "\n\n    Yum. Hunger level\n and happiness increased"
-                    else:
-                        hunger += 5
-                        if happiness + 5 > 10:
-                            happiness = 10
-                        else:
-                            happiness += 5
-                            self.status_text = "\n\nYum. Hunger level\n and happiness increased"
-                        
             self.back_to_menu()
             self.update()
 
@@ -290,12 +229,6 @@ class Tamagotchi(QWidget):
         elif self.menu_active:
             self.current_menu_index = (self.current_menu_index - 1) % 4
             self.update()
-        elif self.is_medicine_screen:
-            self.medicine_index = (self.medicine_index - 1) % 2
-            self.update()
-        elif self.is_feed_screen:
-            self.feed_index = (self.feed_index - 1) % 2
-            self.update()
 
     def move_egg_right(self):
         if not self.is_hatched:
@@ -305,12 +238,6 @@ class Tamagotchi(QWidget):
                 self.update()
         elif self.menu_active:
             self.current_menu_index = (self.current_menu_index + 1) % 4
-            self.update()
-        elif self.is_medicine_screen:
-            self.medicine_index = (self.medicine_index + 1) % 2
-            self.update()
-        elif self.is_feed_screen:
-            self.feed_index = (self.feed_index + 1) % 2
             self.update()
 
     def hatch_egg(self):
@@ -386,7 +313,7 @@ class Tamagotchi(QWidget):
             self.menu_active = True
             self.update()
         if self.is_play_screen:
-            self.is_status_screen = False
+            self.is_play_screen = False
             self.menu_active = True
             self.update()
 
@@ -416,8 +343,8 @@ class Tamagotchi(QWidget):
             self.menu_active = True
             self.activate_menu()
             self.update()
-        elif self.is_status_screen:
-                self.is_status_screen = False
+        elif self.is_play_screen:
+                self.is_play_screen = False
                 self.menu_active = True
                 self.activate_menu()
                 self.update()
@@ -431,25 +358,56 @@ class Tamagotchi(QWidget):
 
     def medicine(self):
         self.clear_screen(keep_image=False)
+        global health
 
-        self.medicine_text = "  Drink Medicine?\n  Yes \n  No:"
+        if health == 10:
+            self.medicine_text = "\n\n   Your health is full."
+        else:
+            if health + 5 > 10:
+                health = 10 #cap
+                self.medicine_text = f"\n\n    Health restored \n    to {health}/10"
+            else:
+                health += 5
+                self.medicine_text = f"\n\n    Health restored \n    to {health}/10"
+
         self.is_medicine_screen = True
-        self.medicine_index = 0 
         self.update()
 
     def feed(self):
         self.clear_screen(keep_image=False)
-
-        self.feed_text = "  Eat?\n  Milk \n  Snacks:"
+        global hunger, happiness
+        
+        if hunger == 10:
+            self.feed_text = "\n\n  You're not hungry.\n  come back later."
+        else:
+            if hunger + 5 > 10:
+                hunger = 10 #cap
+                if happiness + 5 > 10: 
+                    happiness = 10
+                else:
+                    happiness += 5 
+                    self.feed_text = "\n\n  Hunger level and\n  happiness increased"
+            else:
+                hunger += 5
+                if happiness + 5 > 10:
+                    happiness = 10
+                else:
+                    happiness += 5
+                    self.feed_text = "\n\n  Hunger level and\n   happiness increased"
         self.is_feed_screen = True
-        self.feed_index = 0 
         self.update()
 
     def play(self):
+        global happiness
         self.clear_screen(keep_image=False)
 
-        self.play_screen = True
-        self.play_text = f"\n   Yayyyy. Happiness\n increased to {happiness}/10"
+        if happiness + 5 >= 10:
+            happiness = 10
+            self.play_text = f"\n   Yayyyy. Happiness\n    increased to {happiness}/10"
+        else:
+            happiness += 5     
+            self.play_text = f"\n   Yayyyy. Happiness\n    increased to {happiness}/10"
+        self.is_play_screen = True
         self.update()
 
 #run
