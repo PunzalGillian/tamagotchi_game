@@ -245,7 +245,7 @@ class Tamagotchi(QWidget):
             self.back_to_menu()
         else:
             self.back_to_menu()
-
+            
         if self.is_medicine_screen:
             if self.medicine_index == 0:
                 if health == 10:
