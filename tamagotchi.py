@@ -38,9 +38,9 @@ MENU_ITEMS = [
 
 ## TAMAGOTCHI STATS
 weight = 1
-happiness = 10
-health = 10
-sleep = 10
+happiness = 4
+health = 2
+hunger = 3
 
 class Tamagotchi(QWidget):
     def __init__(self):
@@ -64,7 +64,14 @@ class Tamagotchi(QWidget):
         self.is_hatched = False
         self.current_menu_index = 0
         self.menu_active = False
+
+        self.medicine_index = 0
+        self.feed_index = 0
+
         self.is_status_screen = False        
+        self.is_medicine_screen = False    
+        self.is_feed_screen = False
+        self.is_play_screen = False 
 
         #LOAD HERE
         self.bg_image = QPixmap("img/bg.png")
@@ -122,6 +129,20 @@ class Tamagotchi(QWidget):
             painter.setFont(QFont("PixelOperator.ttf", 8))
             painter.drawText(screen, Qt.AlignLeft | Qt.AlignTop, self.status_text)
             return
+        
+        if self.is_medicine_screen:
+            painter.setPen(QPen(QColor(0,0,0)))
+            painter.setFont(QFont("PixelOperator.ttf", 8))
+            painter.drawText(screen, Qt.AlignLeft | Qt.AlignTop, self.status_text)
+            return
+        
+        if self.is_feed_screen:
+            painter.setPen(QPen(QColor(0,0,0)))
+            painter.setFont(QFont("PixelOperator.ttf", 8))
+            painter.drawText(screen, Qt.AlignLeft | Qt.AlignTop, self.feed_text)
+            return
+
+
             # EGGS -------------------------------------------------
         if not self.is_hatched:
             scaled_egg = self.current_egg_image.scaled(65,76, Qt.KeepAspectRatio)
@@ -139,6 +160,45 @@ class Tamagotchi(QWidget):
         if self.menu_active:
             self.menu_layout(painter, center_x, center_y)
 
+        ## ----------------------------MEDICINE----------------------------------------------------------------------
+
+        if self.is_medicine_screen:
+            painter.setPen(QPen(QColor(0,0,0)))
+            painter.setFont("PixelOperator.ttf",8)
+            painter.drawText(screen, Qt.AlignLeft | Qt.AlignTop, self.medicine_text)
+            #----------------MEDICINE CHOICE------------------------
+            if self.medicine_index == 0:
+                painter.setPen(QPen(QColor(63,99,171),2))
+                painter.drawText(50, 220, "> Yes")
+                painter.setPen(QPen(QColor(0,0,0),1))
+                painter.drawText(50,240, " No")
+            else:
+                painter.setPen(QPen(QColor(0,0,0),1))
+                painter.drawText(50, 220, "  Yes")
+                painter.setPen(QPen(QColor(63,99,71),2))
+                painter.drawText(50,240, "> No")
+
+        #--------------------FEED----------------------------------------------
+        if self.is_feed_screen:
+            painter.setPen(QPen(QColor(0,0,0)))
+            painter.setFont("PixelOperator.ttf",8)
+            painter.drawText(screen, Qt.AlignLeft | Qt.AlignTop, self.feed_text)
+            #----------------FOOD CHOICE------------------------
+            if self.feed_index == 0:
+                painter.setPen(QPen(QColor(63,99,171),2))
+                painter.drawText(50, 220, "> Milk")
+                painter.setPen(QPen(QColor(0,0,0),1))
+                painter.drawText(50,240, " Snacks")
+            else:
+                painter.setPen(QPen(QColor(0,0,0),1))
+                painter.drawText(50, 220, "  Milk")
+                painter.setPen(QPen(QColor(63,99,71),2))
+                painter.drawText(50,240, "> Cake")
+        
+            return
+        
+
+
     # action 1
     def mousePressEvent(self, event):
         self.oldPosition = event.globalPos()
@@ -146,7 +206,7 @@ class Tamagotchi(QWidget):
     #action 2
     def mouseMoveEvent(self, event):
             delta = QPoint(event.globalPos() - self.oldPosition)
-            self.move(self.x() + delta.x(), self.y() + delta.y())
+            self.move(self.pos() + delta)
             self.oldPosition = event.globalPos()
 
     def create_buttons(self):
@@ -171,15 +231,51 @@ class Tamagotchi(QWidget):
         self.buttonC.clicked.connect(self.move_egg_right)
 
     def buttonB_clicked(self):
+        global weight, happiness, health, hunger
+
         if not self.is_hatched:
             self.hatch_egg()
         elif self.menu_active:
             self.menu_options()
         elif self.is_status_screen:
             self.back_to_menu()
+        elif self.is_medicine_screen:
+            self.back_to_menu()
+        elif self.is_feed_screen:
+            self.back_to_menu()
         else:
             self.back_to_menu()
 
+        if self.is_medicine_screen:
+            if self.medicine_index == 0:
+                if health == 10:
+                    self.status_text = "\n\n   Your health is full."
+                else:
+                    if health + 5 > 10:
+                        health = 10 #cap
+                        self.status_text = f"\n\n    Health restored \n    to {health}/10"
+                    else:
+                        health += 5
+                        self.status_text = f"\n\n    Health restored \n    to {health}/10"
+
+        if self.is_feed_screen:
+            if self.feed_index == 0: #milk
+                if hunger == 10:
+                    self.status_text = "\n\n   You're not hungry. come back later."
+                else:
+                        hunger = min(hunger + 5, 10) #cap
+                        happiness = min(happiness + 5,10)
+                        self.status_text = "\n\n    Yum. Hunger restored to {hunger}/10\n and happiness restored to {happines}/10"                    
+            else: #snacks
+                if hunger == 10:
+                    self.status_text = "\n\n   You're not hungry. come back later."             
+                else:       
+                    hunger = min(hunger + 3, 10) #cap
+                    happiness = min(happiness + 3,10)
+                    self.status_text = "\n\n    Yum. Hunger restored to {hunger}/10\n and happiness restored to {happines}/10"                 
+
+            self.update()
+        self.back_to_menu()
     def move_egg_left(self):
         if not self.is_hatched:
             if self.current_egg_index > 0:
@@ -189,6 +285,13 @@ class Tamagotchi(QWidget):
         elif self.menu_active:
             self.current_menu_index = (self.current_menu_index - 1) % 4
             self.update()
+        elif self.is_medicine_screen:
+            self.medicine_index = (self.medicine_index - 1) % 2
+            self.update
+        elif self.is_feed_screen:
+            self.feed_index = (self.feed_index - 1) % 2
+            self.update
+
     def move_egg_right(self):
         if not self.is_hatched:
             if self.current_egg_index < len(EGGS) - 1:
@@ -198,6 +301,13 @@ class Tamagotchi(QWidget):
         elif self.menu_active:
             self.current_menu_index = (self.current_menu_index + 1) % 4
             self.update()
+        elif self.is_medicine_screen:
+            self.medicine_index = (self.medicine_index + 1) % 2
+            self.update
+        elif self.is_feed_screen:
+            self.feed_index = (self.feed_index + 1) % 2
+            self.update()
+
     def hatch_egg(self):
         if not self.is_hatched:
             selected_egg = list(EGGS.keys())[self.current_egg_index]
@@ -262,6 +372,15 @@ class Tamagotchi(QWidget):
             self.is_status_screen = False
             self.menu_active = True
             self.update()
+        if self.is_medicine_screen:
+            self.is_medicine_screen = False
+            self.menu_active = True
+            self.update()
+        if self.is_feed_screen:
+            self.is_feed_screen = False
+            self.menu_active = True
+            self.update()
+
 
     def clear_screen(self, keep_image=False):
         if not keep_image:
@@ -279,19 +398,38 @@ class Tamagotchi(QWidget):
                 self.menu_active = True
                 self.activate_menu()
                 self.update()
+        if self.is_medicine_screen:
+                self.is_medicine_screen = False
+                self.menu_active = True
+                self.activate_menu()
+                self.update()
+        if self.is_feed_screen:
+            self.is_feed_screen = False
+            self.menu_active = True
+            self.activate_menu()
+            self.update()
 
     def status(self):
         self.clear_screen(keep_image=False)
-        self.status_text = f"\n  Weight: {weight}kg\n  Happiness: {happiness}/10\n  Health: {health}/10\n  Sleep: {sleep}/10"
+        self.status_text = f"\n  Weight: {weight}kg\n  Happiness: {happiness}/10\n  Health: {health}/10\n  Hunger: {hunger}/10"
         self.is_status_screen = True
         self.update()
 
-
     def medicine(self):
-        self.clear_screen()
+        self.clear_screen(keep_image=False)
+
+        self.medicine_text = "  Drink Medicine?\n  Yes \n  No:"
+        self.is_medicine_screen = True
+        self.medicine_index = 0 
+        self.update()
 
     def feed(self):
-        self.clear_screen()
+        self.clear_screen(keep_image=False)
+
+        self.feed_text = "  Eat?\n  Milk \n  Snacks:"
+        self.is_feed_screen = True
+        self.feed_index = 0 
+        self.update()
 
     def play(self):
         self.clear_screen()
