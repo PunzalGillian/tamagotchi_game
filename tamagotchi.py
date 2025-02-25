@@ -134,6 +134,16 @@ class Tamagotchi(QWidget):
         if self.menu_active:
             self.menu_layout(painter, center_x, center_y)
 
+    # action 1
+    def mousePressEvent(self, event):
+        self.oldPosition = event.globalPos()
+        
+    #action 2
+    def mouseMoveEvent(self, event):
+            delta = QPoint(event.globalPos() - self.oldPosition)
+            self.move(self.x() + delta.x(), self.y() + delta.y())
+            self.oldPosition = event.globalPos()
+
     def create_buttons(self):
                 #A
         self.buttonA = QPushButton("A", self)
