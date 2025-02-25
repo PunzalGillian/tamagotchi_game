@@ -161,8 +161,8 @@ class Tamagotchi(QWidget):
         self.buttonB.setFixedSize(30,30)
         self.buttonB.setStyleSheet("border-radius: 15px; background-color: lightgray; border: 3px solid rgb(63,99,171);")
         self.buttonB.move(120,260)
-        self.buttonB.clicked.connect(self.hatch_egg)
-        self.buttonB.clicked.connect(self.menu_options)
+        self.buttonB.clicked.connect(self.buttonB_clicked)
+
                 #C
         self.buttonC = QPushButton("C", self)
         self.buttonC.setFixedSize(30,30)
@@ -170,6 +170,15 @@ class Tamagotchi(QWidget):
         self.buttonC.move(168,260)
         self.buttonC.clicked.connect(self.move_egg_right)
 
+    def buttonB_clicked(self):
+        if not self.is_hatched:
+            self.hatch_egg()
+        elif self.menu_active:
+            self.menu_options()
+        elif self.is_status_screen:
+            self.back_to_menu()
+        else:
+            self.back_to_menu()
 
     def move_egg_left(self):
         if not self.is_hatched:
@@ -202,6 +211,8 @@ class Tamagotchi(QWidget):
             self.is_hatched = True
 
             QTimer.singleShot(500, self.activate_menu)
+        else:
+            self.menu_options()
 
     def activate_menu(self):
         self.menu_active = True
@@ -244,17 +255,30 @@ class Tamagotchi(QWidget):
             else:
                 self.clear_screen(keep_image=True)
                 action()
-    def clear_screen(self, keep_image=False):
-        if not keep_image:
-            self.current_egg_image = None
-        self.menu_active = False
-        self.update()
 
-    def select(self, event):
-        if event.key() == Qt.Key_B and self.is_status_screen:
+    def back_to_menu(self):
+
+        if self.is_status_screen:
             self.is_status_screen = False
             self.menu_active = True
             self.update()
+
+    def clear_screen(self, keep_image=False):
+        if not keep_image:
+            if self.is_hatched:
+                self.current_egg_image = QPixmap(TAMAGOTCHIS[list(EGGS.keys())[self.current_egg_index]]) # restoroe tamagochi imageg
+                self.activate_menu()
+            else:
+                self.current_egg_image = None
+        self.menu_active = False
+        self.update()
+
+    def select(self):
+        if self.is_status_screen:
+                self.is_status_screen = False
+                self.menu_active = True
+                self.activate_menu()
+                self.update()
 
     def status(self):
         self.clear_screen(keep_image=False)
@@ -276,4 +300,4 @@ class Tamagotchi(QWidget):
 app = QApplication(sys.argv)
 window = Tamagotchi()
 window.show()
-sys.exit(app.exec())
+sys.exit(app.exec())            
