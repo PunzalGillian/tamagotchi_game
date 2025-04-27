@@ -1,69 +1,68 @@
-```markdown
-# Pokémon Tamagotchi
 
-Welcome to **Pokémon Tamagotchi** — a nostalgic desktop pet game where you can hatch and take care of your very own Pokémon, just like the classic Tamagotchi!
+# 🐾 Pokémon Tamagotchi
 
-In this game, you'll choose an egg to hatch into a Pokémon (such as Charizard, Jigglypuff, or Bulbasaur) and care for it by monitoring its status, feeding it, playing with it, and giving it medicine when needed.
+Welcome to **Pokémon Tamagotchi** — a fun, nostalgic desktop pet game where you hatch and take care of a Pokémon!  
+
+Built with **Python** and using **PyQt5** for the GUI and **Pygame** for sound effects, this game lets you pick a Pokémon egg, hatch it, and care for your Pokémon by feeding it, playing with it, and giving it medicine when needed. 
+
+🔗 **Live Demo**: Not available (local execution required)
+
+![Python](https://img.shields.io/badge/Backend-Python-blue)
+![PyQt5](https://img.shields.io/badge/GUI-PyQt5-green)
+![Pygame](https://img.shields.io/badge/Sound-Pygame-red)
 
 ## ✨ Features
 
-- **Pick an Egg**: Choose from a variety of Pokémon eggs, including favorites like Bulbasaur, Jigglypuff, Charizard, Squirtle, Ghastly, and Oddish.
-- **Hatch and Care**: After picking an egg, it hatches into a Pokémon! You can interact with your Pokémon by:
-  - Checking their **Health**, **Happiness**, **Hunger**, and **Weight**
-  - Giving them **Medicine** if they get sick
-  - **Feeding** them when they're hungry
-  - **Playing** with them to keep them happy
-- **Sound Effects**: Enjoy immersive sound effects, including hatching, attention, game start, and death sounds.
-- **Simple Controls**: Use A, B, and C buttons for easy navigation and interaction.
-- **Custom UI**: Features a nostalgic pixel art background, a tamagotchi shell, and a draggable frameless window for a retro experience.
+- 🥚 **Pick an Egg**: Choose from various Pokémon eggs like Bulbasaur, Jigglypuff, Charizard, and more!
+- 🐣 **Hatch and Care**: Hatch your egg and care for your Pokémon by:
+  - Checking its **Status**
+  - Giving it **Medicine** if it's sick
+  - **Feeding** it to keep it healthy
+  - **Playing** with it to keep it happy
+- 🎶 **Sound Effects**: Includes hatching, attention, game start, and death sounds for an immersive experience.
+- 🎮 **Simple Controls**: Use **A**, **B**, and **C** buttons to interact and navigate the game.
+- 🎨 **Custom UI**: A nostalgic pixel art background with a draggable frameless window.
 
 ## 🛠️ Built With
 
-- **Python**: The primary programming language for the game.
-- **PyQt5**: For the graphical user interface (GUI).
-- **Pygame**: For sound effects, making the game more interactive.
+- **Python**
+- **PyQt5** — for the GUI (graphical user interface)
+- **Pygame** — for sound effects
 
-## 🎮 How to Play
+## 🚀 How to Play
 
 1. **Install Dependencies**:
-   Make sure to install the necessary dependencies:
    ```bash
    pip install PyQt5 pygame
    ```
 
 2. **Run the Game**:
-   After installation, you can start the game by running:
    ```bash
    python tamagotchi.py
    ```
 
 3. **Controls**:
-   - **A Button**: Move selection left (choose eggs/menu options).
-   - **B Button**: Confirm selection (hatch egg, interact with menu).
-   - **C Button**: Move selection right (choose eggs/menu options).
+   - **A Button**: Move selection left (choose eggs/menu options)
+   - **B Button**: Confirm (hatch egg, interact with menu)
+   - **C Button**: Move selection right (choose eggs/menu options)
 
 4. **Taking Care of Your Pokémon**:
-   - Use the in-game menu to monitor your Pokémon's health, happiness, hunger, and weight.
-   - Feed and play with your Pokémon to keep them happy and healthy.
+   - Use the menu to check their **health**, **happiness**, **hunger**, and **weight**.
+   - Feed and play with them to keep them healthy and happy!
 
-## 📸 Screenshots
+## 🚧 Known Issues / Future Improvements
 
+- Add more Pokémon eggs for variety
+- Expand the range of actions and interactions with the Pokémon
+- Include more sound effects and animations for a more immersive experience
+- Improve mobile compatibility for a larger audience
 
-![Game Screenshot](screenshots/gameplay1.png)
-*Gameplay screenshot showing the Pokémon care options.*
+## 📷 Screenshots
 
-![Egg Selection](screenshots/egg_selection.png)
-*Selecting an egg to hatch your new Pokémon.*
-
-> **Note**: Be sure that you have the required **fonts**, **images**, and **sound files** placed in the correct directories (`font/`, `img/`, `sfx/`).
-
-## 📝 Notes
-
-- The game currently supports a small selection of Pokémon. You can easily expand it by adding more eggs and sprites for additional Pokémon.
-- This project was originally built for a school assignment but has since been expanded with more features.
-
-
-Enjoy your Pokémon Tamagotchi experience and take care of your virtual pet!
+![Screenshot (395)](https://github.com/user-attachments/assets/8f54434e-9f22-430a-b750-5c15ebd79ff7)
+![Screenshot (398)](https://github.com/user-attachments/assets/64a30366-f4ec-4801-8f37-6cd5651a0c99)
+![Screenshot (397)](https://github.com/user-attachments/assets/100f3814-9827-4ea8-ba7f-6cd42b254113)
+![Screenshot (400)](https://github.com/user-attachments/assets/f8d7e58d-f1c2-4790-aae1-74c5a137e06b)
 
 
 > [Originally built for a school assignment]
